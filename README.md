@@ -2,7 +2,6 @@
 
 **AnalystLab Africa · Experience Lab Internship Programme**
 **Track:** Data Science
-**Status:** 🟡 In Progress — Week 4 of the Experience Lab (Problem Understanding & Initial EDA)
 
 ---
 
@@ -30,14 +29,15 @@ model, and — from Week 5 onward — building and evaluating that model.
 
 ```
 ├── README.md                                    # This file
-├── data/
-│   └── HealthConnect_Appointment_Data.csv        # Raw appointment dataset (5,000 records, 18 fields)
-├── notebooks/
-│   └── HealthConnect_DS_Week4_EDA.ipynb          # Week 4 EDA — data quality checks + feature exploration
+├── HealthConnect_Appointment_Data.csv        # Raw appointment dataset (5,000 records, 18 fields)
+├── HealthConnect_DS_Week4_EDA.ipynb                      # Week 4 EDA — data quality checks + feature exploration
+│   └── HealthConnect_DS_Week5_Baseline_Modelling.ipynb   # Week 5 — data prep, feature engineering, baseline model
 └── docs/
-    ├── HealthConnect_ML_Problem_Definition_Week4.pdf   # ML problem definition (target, features, approach, risks)
-    └── HealthConnect_Week4_Project_Summary.pdf         # Concise Week 4 summary + Week 5 plan
+    ├── HealthConnect_ML_Problem_Definition_Week4.docx    # ML problem definition (target, features, approach, risks)
+    ├── HealthConnect_Week4_Project_Summary.pdf         # Concise Week 4 summary + Week 5 plan
+    └── HealthConnect_Week5_Project_Summary.pdf          # Concise Week 5 summary + Week 6 plan
 ```
+
 ---
 
 ## Week 4 Summary: Problem Definition & Exploratory Data Analysis
@@ -79,7 +79,7 @@ scenario often assumed for no-show prediction problems.
   leaking patient-specific behaviour between train and test sets.
 
 Full code, statistics, and charts are in
-[`HealthConnect_DS_EDA.ipynb`](HealthConnect_DS_EDA.ipynb).
+[`HealthConnect_DS_Week4_EDA.ipynb`](HealthConnect_DS_EDA.ipynb).
 
 ### Proposed ML Approach
 
@@ -96,6 +96,54 @@ Full code, statistics, and charts are in
 Full details, including handling of the `Cancelled` category and a full assumptions/risks register,
 are documented in
 [`docs/HealthConnect_ML_Problem_Definition_Week4.pdf`](docs/HealthConnect_ML_Problem_Definition_Week4.pdf).
+
+---
+
+## Week 5 Summary: Data Preparation, Feature Engineering & Baseline Model
+
+### Data Preparation
+- Filtered to **Attended vs. No-Show** appointments (4,737 of 5,000 records), excluding the
+  small, behaviourally distinct `Cancelled` group (5.3%) per the Week 4 target definition.
+- Imputed missing `distance_to_clinic_km` with the median; filled missing `reminder_channel`
+  with an explicit `"None"` category (missingness there is structural, not a data issue).
+- Dropped `waiting_time_minutes` entirely — it's only known once an appointment is already
+  underway, so it would leak information not available at prediction time.
+- Dropped `age_group` (redundant with `age`) and merged the rare `"Prefer not to say"` gender
+  category into `"Other"` to avoid an unstable dummy variable.
+
+### Feature Engineering
+| Feature | Description |
+|---|---|
+| `previous_no_show_rate` | `previous_no_shows / previous_appointments`, capturing reliability independent of visit volume |
+| `is_new_patient` | Flags patients with no appointment history |
+| `has_reminder` | Binary version of `reminder_sent` |
+| `gender_grp` | `gender` with the rare category consolidated |
+
+### Train/Test Strategy
+A **patient-grouped split** (`GroupShuffleSplit`, 80/20) was used instead of a random row split,
+since each patient appears ~3 times on average — verified to produce **zero patient overlap**
+between train and test sets.
+
+### Baseline Model & Results
+
+| Metric | Score |
+|---|---|
+| Accuracy | 0.627 (vs. 0.50 naive majority-class baseline) |
+| Precision | 0.622 |
+| Recall | 0.650 |
+| F1-score | 0.636 |
+| ROC-AUC | 0.678 |
+
+**Logistic Regression** was chosen as the baseline for its interpretability. Feature coefficients
+confirm the Week 4 findings: `booking_lead_days` and `previous_no_shows` are the strongest drivers
+of predicted no-show risk. A multicollinearity issue between the three patient-history features
+(`previous_appointments`, `previous_no_shows`, `previous_no_show_rate`) was identified and flagged
+for Week 6.
+
+Full code, all five decision-supporting visualisations (target distribution, distribution/outlier
+checks, correlation heatmap, feature-target relationship plots), and the confusion matrix / ROC
+curve are in
+[`HealthConnect_DS_Week5_Baseline_Modelling.ipynb`](HealthConnect_DS_Week5_Baseline_Modelling.ipynb).
 
 ---
 
@@ -121,6 +169,19 @@ jupyter notebook notebooks/HealthConnect_DS_Week4_EDA.ipynb
 
 The notebook expects `HealthConnect_Appointment_Data.csv` to be in the same working directory (or
 update the file path in the first code cell to point at `data/HealthConnect_Appointment_Data.csv`).
+
+---
+
+## Roadmap
+
+- [x] **Week 4** — Problem understanding, data quality assessment, exploratory data analysis,
+      ML problem definition
+- [x] **Week 5** — Data preparation, feature engineering, patient-grouped train/test split,
+      baseline logistic regression model (Accuracy 0.627, ROC-AUC 0.678)
+- [ ] **Week 6** — Model comparison (Random Forest / Gradient Boosting), grouped cross-validation,
+      fairness/bias review, and interpretability (feature importance / SHAP)
+- [ ] **Week 7** — Testing, refinement, and fairness/bias review across patient subgroups
+- [ ] **Final** — Presentation and portfolio write-up
 
 ---
 
