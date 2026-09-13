@@ -32,10 +32,14 @@ model, and — from Week 5 onward — building and evaluating that model.
 ├── HealthConnect_Appointment_Data.csv        # Raw appointment dataset (5,000 records, 18 fields)
 ├── HealthConnect_DS_Week4_EDA.ipynb                      # Week 4 EDA — data quality checks + feature exploration
 │   └── HealthConnect_DS_Week5_Baseline_Modelling.ipynb   # Week 5 — data prep, feature engineering, baseline model
+│   └── HealthConnect_DS_Week6_Baseline_Modelling.ipynb   # Week 6 — error analysis, feature refinement, model comparison
 └── docs/
     ├── HealthConnect_ML_Problem_Definition_Week4.docx    # ML problem definition (target, features, approach, risks)
     ├── HealthConnect_Week4_Project_Summary.pdf         # Concise Week 4 summary + Week 5 plan
     └── HealthConnect_Week5_Project_Summary.pdf          # Concise Week 5 summary + Week 6 plan
+    └── HealthConnect_Week6_Project_Summary.pdf          # Concise Week 6 summary + Week 7 plan
+    └── HealthConnect_Week6_CrossTrack_Integration_Evidence.md      # Data Analytics → Data Science integration evidence
+
 ```
 
 ---
@@ -146,6 +150,58 @@ curve are in
 [`HealthConnect_DS_Week5_Baseline_Modelling.ipynb`](HealthConnect_DS_Week5_Baseline_Modelling.ipynb).
 
 ---
+
+## Week 6 Summary: Model Improvement, Error Analysis & Validation
+ 
+Week 6 does **not** repeat the Week 5 baseline. It analyses its weaknesses, fixes a known issue,
+adds evidence-based features, and validates whether an improved model is actually better, not just
+numerically, but reliably and operationally.
+ 
+### Error Analysis
+Profiling the Week 5 baseline's false positives/negatives found a clear pattern:
+- **False negatives** (missed no-shows): short lead time (~19 days), low prior no-show count — the
+  model has little signal to catch these.
+- **False positives** (predicted no-show, actually attended): long lead time (~39 days), moderate
+  history — the model is reading its available signals correctly; they're just probabilistic.
+- **Accuracy varied by appointment type** — notably lower for Specialist Consultation (58.3%) than
+  Diagnostic Test (69.7%), prompting the segment investigation below.
+### Cross-Track Integration (Data Analytics → Data Science)
+A segment-level analysis (no-show rate by `appointment_type` × `booking_lead_days`) found that
+**Follow-up appointments are the most lead-time-sensitive type** — no-show rate rises from 31.9%
+(0–7 days) to 75.2% (45–60 days), a steeper climb than any other type. This finding was turned into
+a new feature (`long_lead_followup`), which then showed a measurable, non-trivial contribution
+(~5% of Random Forest feature importance) — real evidence of integration, not just communication.
+ 
+### Feature Refinement
+- Resolved the Week 5 multicollinearity issue by dropping the redundant `previous_appointments`
+  feature.
+- Added `booking_lead_days_sq` to let the linear model represent the non-linear (convex) lead-time
+  effect found in earlier EDA.
+- Added `long_lead_followup` from the cross-track finding above.
+### Model Comparison
+ 
+| Model | Accuracy | ROC-AUC (test) | ROC-AUC (5-fold CV mean) |
+|---|---|---|---|
+| Week 5 baseline (Logistic Regression) | 0.628 | 0.678 | — |
+| Logistic Regression v2 (refined features) | 0.635 | 0.686 | 0.680 |
+| Random Forest | 0.648 | 0.691 | 0.679 |
+| Gradient Boosting | 0.619 | 0.662 | 0.655 |
+ 
+Cross-validation showed Logistic Regression v2 and Random Forest are **statistically
+indistinguishable** — the single-split edge for Random Forest was within normal fold-to-fold noise.
+Gradient Boosting consistently underperformed, an honestly-reported negative result rather than a
+tuned comparison. **Both Logistic Regression v2 and Random Forest are carried forward as joint
+candidates** for Week 7 rather than forcing a single "winner" on a marginal difference.
+ 
+### Business-Relevance Check
+Beyond accuracy: if HealthConnect staff prioritised reminder outreach for the top-scoring 20% of
+appointments by predicted risk, **~72–73% of those would actually be no-shows**, versus a 50%
+baseline — a **~1.44–1.45x lift**. This confirms the model is operationally useful for prioritising
+limited outreach effort, which is the actual HealthConnect use case.
+ 
+Full code, error analysis, cross-track integration detail, and all charts are in
+[`HealthConnect_DS_Week6_Model_Improvement.ipynb`](HealthConnect_DS_Week6_Model_Improvement.ipynb).
+ 
 
 ## Getting Started
 
