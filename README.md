@@ -39,6 +39,10 @@ model, and — from Week 5 onward — building and evaluating that model.
     └── HealthConnect_Week5_Project_Summary.pdf          # Concise Week 5 summary + Week 6 plan
     └── HealthConnect_Week6_Project_Summary.pdf          # Concise Week 6 summary + Week 7 plan
     └── HealthConnect_Week6_CrossTrack_Integration_Evidence.md      # Data Analytics → Data Science integration evidence
+    └── WK7_HealthConnect_HC-POD_Cross-Track_Evidence_ Ayden_Nancy_Lee      # Data Analytics → Data Science integration evidence
+    └── HealthConnect_Week7_Project_Summary.pdf          # Concise Week 7 summary + Week 8 plan
+
+
 
 ```
 
@@ -203,8 +207,56 @@ Full code, error analysis, cross-track integration detail, and all charts are in
 [`HealthConnect_DS_Week6_Model_Improvement.ipynb`](HealthConnect_DS_Week6_Model_Improvement.ipynb).
  
 
+## Week 7 Summary: Model Testing, Refinement & End-to-End Validation
+ 
+Week 7 does **not** repeat Week 6's model comparison. It formally tests the Week 6 candidates,
+checks whether last week's "improvement" actually holds up statistically, retests a cross-track
+finding on data it was never derived from, and makes one targeted, evidence-based refinement.
+ 
+### Formal Test Suite
+ 
+| Test | Result | Pass/Fail |
+|---|---|---|
+| Reproducibility (retrain twice) | Identical ROC-AUC across runs | ✅ Pass |
+| Overfitting (train vs. test gap) | LogReg v2: 0.003 (negligible); Random Forest: 0.035 (borderline) | ✅ Pass / ⚠️ Marginal |
+| Cross-validation stability | Mean ROC-AUC 0.680, std ≈ 0.007 across 5 folds | ✅ Pass |
+| Statistical significance (Week 5 → Week 6 improvement) | Bootstrap 95% CI [0.0026, 0.0145] — excludes zero | ✅ Pass |
+| Cross-track feature retest (held-out data) | 68.4% no-show rate for flagged appointments vs. 50.0% overall (1.37x) | ✅ Pass |
+ 
+**Key result:** the Random Forest-vs-LogReg choice doesn't matter much (tied in Week 6), but the
+Week 6 **feature refinements** demonstrably do — confirmed via bootstrap significance testing this
+week, and Random Forest's larger overfitting gap further supports **Logistic Regression v2 as the
+primary Week 8 candidate**.
+ 
+### Error Analysis & Refinement
+Error analysis on the refined candidate confirmed the Week 6 blind spot persists: no-shows with
+short lead time and clean prior history are still under-detected. This is a **threshold problem, not
+a feature problem** — these cases simply carry no strong risk signal. Lowering the decision threshold
+from 0.50 to 0.40:
+ 
+| Metric | Threshold 0.50 | Threshold 0.40 |
+|---|---|---|
+| Overall recall | 65.2% | 81.8% |
+| Overall precision | 63.0% | 58.4% |
+| Blind-spot segment recall | 8.2% | **27.6%** |
+ 
+A real, more-than-3x improvement on the hardest-to-detect segment — though most of those cases are
+still missed, which is documented honestly rather than overstated.
+ 
+### Cross-Track Testing (Data Analytics → Data Science)
+The Week 6 `long_lead_followup` finding was retested on the **held-out test set only** — data it
+was never derived from or trained on — and replicated (1.37x lift, consistent with the original
+1.44–1.45x finding). This confirms the feature reflects a genuine pattern rather than a training-set
+artefact. Full record in
+[`docs/HealthConnect_Week7_CrossTrack_Testing_Evidence.md`](docs/HealthConnect_Week7_CrossTrack_Testing_Evidence.md).
+ 
+Full code, all tests, and charts are in
+[`notebooks/HealthConnect_DS_Week7_Testing_Refinement.ipynb`](notebooks/HealthConnect_DS_Week7_Testing_Refinement.ipynb).
+ 
+---
+ 
 ## Getting Started
-
+ 
 ### Requirements
 ```
 python >= 3.10
@@ -214,7 +266,7 @@ matplotlib
 scikit-learn
 jupyter
 ```
-
+ 
 ### Setup
 ```bash
 git clone <this-repo-url>
@@ -222,32 +274,33 @@ cd <this-repo>
 pip install -r requirements.txt   # or: pip install pandas numpy matplotlib scikit-learn jupyter
 jupyter notebook notebooks/HealthConnect_DS_Week4_EDA.ipynb
 ```
-
+ 
 The notebook expects `HealthConnect_Appointment_Data.csv` to be in the same working directory (or
 update the file path in the first code cell to point at `data/HealthConnect_Appointment_Data.csv`).
-
+ 
 ---
-
+ 
 ## Roadmap
-
+ 
 - [x] **Week 4** — Problem understanding, data quality assessment, exploratory data analysis,
       ML problem definition
 - [x] **Week 5** — Data preparation, feature engineering, patient-grouped train/test split,
       baseline logistic regression model (Accuracy 0.627, ROC-AUC 0.678)
-- [ ] **Week 6** — Model comparison (Random Forest / Gradient Boosting), grouped cross-validation,
-      fairness/bias review, and interpretability (feature importance / SHAP)
+- [x] **Week 6** — Error analysis, feature refinement, cross-track integration with Data Analytics,
+      model comparison (Logistic Regression v2 & Random Forest as joint candidates, ROC-AUC ≈ 0.68–0.69)
+- [x] **Week 7** — Formal test suite, statistical significance testing, cross-track retest,
+      decision-threshold refinement (recommended candidate: Logistic Regression v2 @ threshold 0.40)
+- [ ] **Week 8** — Fairness/bias review, final integration, and HealthConnect presentation
 - [ ] **Week 7** — Testing, refinement, and fairness/bias review across patient subgroups
 - [ ] **Final** — Presentation and portfolio write-up
-
 ---
-
+ 
 ## Notes & Disclaimers
-
+ 
 - All data is **fictional and synthetic**, provided for internship training purposes by
   AnalystLab Africa. No real patient data is used anywhere in this project.
 - This repository reflects work in progress as part of a structured internship programme; content
   will be updated weekly as the project develops.
-
 ---
 
 ## Author
