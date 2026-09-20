@@ -251,7 +251,7 @@ artefact. Full record in
 [`docs/HealthConnect_Week7_CrossTrack_Testing_Evidence.md`](docs/HealthConnect_Week7_CrossTrack_Testing_Evidence.md).
  
 Full code, all tests, and charts are in
-[`notebooks/HealthConnect_DS_Week7_Testing_Refinement.ipynb`](notebooks/HealthConnect_DS_Week7_Testing_Refinement.ipynb).
+[`HealthConnect_DS_Week7_Testing_Refinement.ipynb`](HealthConnect_DS_Week7_Testing_Refinement.ipynb).
  
 ---
  
