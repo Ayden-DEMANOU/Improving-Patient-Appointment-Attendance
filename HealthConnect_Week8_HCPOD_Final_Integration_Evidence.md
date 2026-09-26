@@ -52,8 +52,6 @@ the project's Week 8 objective of moving from individual contributions to a cohe
 solution.
 
 **8. Evidence:**
-- `HealthConnect_final_model.pkl`, `HealthConnect_final_scaler.pkl`,
-  `HealthConnect_final_feature_columns.pkl` — the hand-off artifacts themselves.
 - `HealthConnect_DS_Week8_Final_Model_Documentation.ipynb`, Section 8 — the documented hand-off
   requirements and rationale.
 - `HealthConnect_Week7_CrossTrack_Testing_Evidence.md` and
