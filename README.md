@@ -41,7 +41,11 @@ model, and — from Week 5 onward — building and evaluating that model.
     └── HealthConnect_Week6_CrossTrack_Integration_Evidence.md      # Data Analytics → Data Science integration evidence
     └── WK7_HealthConnect_HC-POD_Cross-Track_Evidence_ Ayden_Nancy_Lee      # Data Analytics → Data Science integration evidence
     └── HealthConnect_Week7_Project_Summary.pdf          # Concise Week 7 summary + Week 8 plan
-
+    ├── HealthConnect_Week7_CrossTrack_Testing_Evidence.md          # Data Analytics → Data Science retest evidence
+    ├── HealthConnect_DS_Week8_Executive_Summary.docx               # Final model summary for non-technical stakeholders
+    └── HealthConnect_Week8_HCPOD_Final_Integration_Evidence.md     # Final Data Science → ML Engineering hand-off evidence
+└── presentation/
+    └── HealthConnect_DS_Week8_Presentation.pptx
 
 
 ```
@@ -252,6 +256,39 @@ artefact. Full record in
  
 Full code, all tests, and charts are in
 [`HealthConnect_DS_Week7_Testing_Refinement.ipynb`](HealthConnect_DS_Week7_Testing_Refinement.ipynb).
+
+## Week 8 Summary: Final Model, Documentation & Presentation
+ 
+Week 8 consolidates Weeks 4–7 into a final, decision-ready package — it does not repeat prior
+analysis, but finalises the model, closes the last outstanding item (fairness), and produces the
+hand-off and presentation materials.
+ 
+### Final Model
+ 
+| | Week 5 Baseline | **Final Model** |
+|---|---|---|
+| Features | 25 (incl. `previous_appointments`) | **24** (per Week 7 ablation: `long_lead_followup` removed, `distance_to_clinic_km` kept) |
+| Decision threshold | 0.50 | **0.40** (evidence-based, from Week 7 blind-spot testing) |
+| ROC-AUC | 0.678 | **0.685** (statistically confirmed improvement) |
+| Recall | 65.0% | **82.8%** |
+| Precision | 62.2% | 58.2% |
+| Top-20%-risk lift | — | **1.43x** |
+ 
+### Fairness Check (Closing the Week 6/7 Outstanding Item)
+No material disparity found across gender (recall 83.1% Female vs. 82.6% Male) or age groups
+(predicted risk tracked actual rates within a few points in every band). One small-sample caveat
+noted for the "Prefer not to say" gender category (n=26) as an ongoing monitoring point, not a red
+flag.
+ 
+Full preprocessing contract (missing-value handling, feature engineering, encoding, scaling order,
+and the 0.40 threshold) documented in
+[`HealthConnect_DS_Week8_Final_Model_Documentation.ipynb`](HealthConnect_DS_Week8_Final_Model_Documentation.ipynb),
+Section 8, and in
+[`docs/HealthConnect_Week8_HCPOD_Final_Integration_Evidence.md`](docs/HealthConnect_Week8_HCPOD_Final_Integration_Evidence.md).
+ 
+### Presentation Materials
+- [`docs/HealthConnect_DS_Week8_Presentation.pptx`](docs/HealthConnect_DS_Week8_Presentation.pptx) — 8-slide Data Science section of the final HealthConnect showcase
+- [`docs/HealthConnect_DS_Week8_Executive_Summary.docx`](docs/HealthConnect_DS_Week8_Executive_Summary.docx) — one-page, non-technical summary
  
 ---
  
